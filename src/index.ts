@@ -4,16 +4,22 @@ if (process.env.ENV === 'development') {
   require('dotenv').config();
 }
 
-async function handler(): Promise<string> {
-  if (!process.env.AUTHORIZATION_HEADER || !process.env.CHANNEL_ID) {
-    throw new Error('A required environment variable is missing.');
+const DEFAULT_MESSAGE_CONTENT = 'Hello, World!';
+
+async function handler(event: undefined | null | { [name: string]: any; }): Promise<string> {
+  if (!process.env.AUTHORIZATION_HEADER) {
+    throw new Error('An AUTHORIZATION_HEADER environment variable must be defined.');
+  }
+
+  if (!event?.channelId) {
+    throw new Error('channelId must be defined on the handler event.');
   }
 
   const createMessageRequest = JSON.parse(
     await httpRequest(
       {
         hostname: 'discord.com',
-        path: `/api/channels/${process.env.CHANNEL_ID}/messages`,
+        path: `/api/channels/${event.channelId}/messages`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,31 +27,31 @@ async function handler(): Promise<string> {
         },
       },
       JSON.stringify({
-        content: '👋 Why hello there! Please vote for game night this upcoming week!\n\n1️⃣ Monday\n\n2️⃣ Tuesday\n\n3️⃣ Wednesday\n\n4️⃣ Thursday\n\n5️⃣ Friday',
+        content: event?.message ? event.message : DEFAULT_MESSAGE_CONTENT,
       }),
     )
   );
 
-  const reactions = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣'];
+  if (event?.reactions) {
+    for (let i = 0; i < event.reactions.length; i++) {
 
-  for (let i = 0; i < reactions.length; i++) {
-
-    await httpRequest(
-      {
-        hostname: 'discord.com',
-        path: `/api/channels/${process.env.CHANNEL_ID}/messages/${createMessageRequest.id}/reactions/${encodeURI(reactions[i])}/@me`,
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': process.env.AUTHORIZATION_HEADER,
+      await httpRequest(
+        {
+          hostname: 'discord.com',
+          path: `/api/channels/${event.channelId}/messages/${createMessageRequest.id}/reactions/${encodeURI(event.reactions[i])}/@me`,
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': process.env.AUTHORIZATION_HEADER,
+          },
         },
-      },
-    );
-
-    if (i < reactions.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 750, {}));
+      );
+  
+      if (i < event.reactions.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 750, {}));
+      }
     }
-  }
+  }  
 
   return 'Success';
 }
