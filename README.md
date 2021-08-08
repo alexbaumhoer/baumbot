@@ -22,13 +22,6 @@ AUTHORIZATION_HEADER=<Bot token from Discord>
 CHANNEL_ID=<Discord channel id>
 ```
 
-## Build the project
-```sh
-npm run build
-```
-
-Note: This project does not currently live reload. You will need to rebuild everytime you make a change.
-
 ### Run the bot
 ```sh
 npm run dev
