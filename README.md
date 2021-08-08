@@ -1,4 +1,4 @@
-# Baumbot
+# lambda-discord-bot
 
 A (very) simple Discord bot intended to run on AWS Lambda written in Node with TypeScript.
 
