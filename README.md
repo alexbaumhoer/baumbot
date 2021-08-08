@@ -51,6 +51,15 @@ Within your Lambda in the AWS Console select `Upload from` -> `.zip file`.
 
 ### Configure environment variables
 
-Within your Lambda in the AWS console go to `Configuration` and configure the required environment variables:
-- `AUTHORIZATION_HEADER`
-- `CHANNEL_ID`
+Within your Lambda in the AWS console go to `Configuration` and configure `AUTHORIZATION_HEADER` as an environment variable.
+
+### Event structure
+
+When executing your Lambda you will need to ensure that an event is passed in with the following structure:
+```
+{
+  channelId: string // The Discord channel id this message should be posted to
+  message?: string // (Optional) The content of the message that will be posted
+  reactions?: string[] // (Optional) An array of reactions to be added to the message
+}
+```
