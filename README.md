@@ -4,7 +4,7 @@ A (very) simple Discord bot intended to run on AWS Lambda written in Node with T
 
 ## Prerequisites
 
-- Node 14
+- Node 18
 
 ## Running locally
 
